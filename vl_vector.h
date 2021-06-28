@@ -39,7 +39,7 @@ public:
         this->vec_size = other.vec_size;
         this->vec_capacity = other.vec_capacity;
 
-        if (this->vec_size > StaticCapacity)
+        if (this->vec_size > (int)StaticCapacity)
         {
             this->dynamic_data = new T[this->vec_capacity];
             std::copy(other.dynamic_data, other.dynamic_data + other.vec_size, this->dynamic_data);
@@ -55,12 +55,12 @@ public:
         this->vec_size= 0;
         InputIterator temp = first;
 
-        for(auto i = first; i != last; ++i)
+        for(auto i = temp; i != last; ++i)
         {
             this->vec_size++;
         }
 
-        if (this->vec_size <= StaticCapacity)
+        if (this->vec_size <= (int)StaticCapacity)
         {
             this->vec_capacity = StaticCapacity;
             std::copy(first, last, this->static_data);
@@ -344,7 +344,17 @@ public:
         }
     }
 
-    T* data() const
+    T* data()
+    {
+        if (this->vec_size <= (int)StaticCapacity)
+        {
+            return this->static_data;
+        }
+
+        return this->dynamic_data;
+    }
+
+    const T* data() const
     {
         if (this->vec_size <= (int)StaticCapacity)
         {
@@ -367,7 +377,7 @@ public:
 
     const T& operator[](int index) const
     {
-        T* temp;
+        const T* temp;
         if (this->vec_size <= (int)StaticCapacity)
         {
             temp = this->static_data;
@@ -403,7 +413,7 @@ public:
 
         for (int i = 0; i < this->vec_size; i++)
         {
-            if (this[i] != other[i])
+            if (this->operator[](i) != other[i])
                 return false;
         }
 
@@ -417,7 +427,7 @@ public:
 
         for (int i = 0; i < this->vec_size; i++)
         {
-            if (this[i] != other[i])
+            if (this->operator[](i) != other[i])
                 return false;
         }
 
@@ -426,12 +436,12 @@ public:
 
     bool operator!=(const vl_vector& other)
     {
-        return !(this == other);
+        return !(this->operator==(other));
     }
 
     bool operator!=(const vl_vector& other) const
     {
-        return !(this == other);
+        return !(this->operator==(other));
     }
 
     iterator begin()
