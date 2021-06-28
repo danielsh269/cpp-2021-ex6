@@ -9,7 +9,7 @@ class vl_vector
 {
 private:
 
-    size_t vec_size;
+    int vec_size;
     size_t vec_capacity;
 public:
     T static_data[StaticCapacity];
@@ -99,7 +99,7 @@ public:
 
     }
 
-    size_t size() const
+    int size() const
     {
         return this->vec_size;
     }
@@ -344,7 +344,7 @@ public:
         }
     }
 
-    const T* data() const
+    T* data() const
     {
         if (this->vec_size <= StaticCapacity)
         {
@@ -359,7 +359,7 @@ public:
 
         for(int i = 0; i < this->vec_size; i++)
         {
-            if (this[i] == v)
+            if (this->operator[](i) == v)
                 return true;
         }
         return false;
@@ -377,7 +377,7 @@ public:
             temp = dynamic_data;
         }
 
-        return *temp[index];
+        return temp[index];
     }
 
     T& operator[](int index)
@@ -393,7 +393,7 @@ public:
             temp = dynamic_data;
         }
 
-        return *temp[index];
+        return temp[index];
     }
 
     bool operator==(const vl_vector& other)
