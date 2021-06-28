@@ -204,10 +204,11 @@ public:
         return position;
     }
 
-    template <class InputIterator> InputIterator insert(InputIterator position, InputIterator first, InputIterator last)
+    template <class InputIterator1, class InputIterator2> InputIterator1 insert(InputIterator1 position, InputIterator2
+            first, InputIterator2 last)
     {
         int k = 0;
-        InputIterator temp = first;
+        InputIterator2 temp = first;
         for(auto i = temp; i != last; i++)
         {
             k++;
@@ -238,9 +239,9 @@ public:
             if (this->vec_size + k > this->vec_capacity)
             {
                 this->vec_capacity = ceil((3 * (this->vec_size + k)) / 2);
-                T* temp = this->dynamic_data;
+                T* temp2 = this->dynamic_data;
                 this->dynamic_data = new T[this->vec_capacity];
-                std::copy(temp, temp + this->vec_size, this->dynamic_data);
+                std::copy(temp2, temp2 + this->vec_size, this->dynamic_data);
                 std::move_backward(position, this->dynamic_data + this->vec_size, this->dynamic_data + this->vec_size + k);
                 std::copy(first, last, position);
                 this->vec_size += k;
@@ -343,7 +344,7 @@ public:
         }
     }
 
-    T* data() const
+    const T* data() const
     {
         if (this->vec_size <= StaticCapacity)
         {
@@ -376,7 +377,7 @@ public:
             temp = dynamic_data;
         }
 
-        return temp[index];
+        return *temp[index];
     }
 
     T& operator[](int index)
@@ -392,7 +393,7 @@ public:
             temp = dynamic_data;
         }
 
-        return temp[index];
+        return *temp[index];
     }
 
     bool operator==(const vl_vector& other)
