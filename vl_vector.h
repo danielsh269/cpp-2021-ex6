@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <exception>
-template <class T, size_t StaticCapacity>
+template <class T, size_t StaticCapacity = 16UL>
 class vl_vector
 {
 private:
@@ -409,7 +409,7 @@ public:
         return true;
     }
 
-    const bool operator==(const vl_vector& other) const
+    bool operator==(const vl_vector& other) const
     {
         if (this->vec_size != other.size())
             return false;
@@ -428,7 +428,7 @@ public:
         return !(this == other);
     }
 
-    const bool operator!=(const vl_vector& other) const
+    bool operator!=(const vl_vector& other) const
     {
         return !(this == other);
     }
@@ -499,11 +499,6 @@ public:
         vl_vector* vec;
         pointer curr;
     public:
-        typedef T value_type;
-        typedef T &reference;
-        typedef T *pointer;
-        typedef int difference_type;
-        typedef std::random_access_iterator_tag iterator_category;
 
         reverse_iterator(vl_vector* vec)
         {
