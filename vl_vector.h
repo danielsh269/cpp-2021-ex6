@@ -99,22 +99,22 @@ public:
 
     }
 
-    size_t size()
+    size_t size() const
     {
         return this->vec_size;
     }
 
-    size_t capacity()
+    size_t capacity() const
     {
         return this->vec_capacity;
     }
 
-    bool empty()
+    bool empty() const
     {
         return this->vec_size == 0;
     }
 
-    T at(int index)
+    T at(int index) const
     {
         if (index < 0 || index >= this->vec_size)
         {
@@ -353,7 +353,7 @@ public:
         return this->dynamic_data;
     }
 
-    bool contains(const T& v)
+    bool contains(const T& v) const
     {
 
         for(int i = 0; i < this->vec_size; i++)
