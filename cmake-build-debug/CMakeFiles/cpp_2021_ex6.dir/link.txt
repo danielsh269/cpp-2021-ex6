@@ -1,0 +1,1 @@
+/usr/bin/c++.exe -g  -Wl,--enable-auto-import CMakeFiles/cpp_2021_ex6.dir/main.cpp.o  -o cpp_2021_ex6.exe -Wl,--out-implib,libcpp_2021_ex6.dll.a -Wl,--major-image-version,0,--minor-image-version,0 

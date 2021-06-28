@@ -1,0 +1,3 @@
+/cygdrive/c/Users/danie/CLionProjects/cpp-2021-ex6/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/cygdrive/c/Users/danie/CLionProjects/cpp-2021-ex6/cmake-build-debug/CMakeFiles/cpp_2021_ex6.dir
+/cygdrive/c/Users/danie/CLionProjects/cpp-2021-ex6/cmake-build-debug/CMakeFiles/edit_cache.dir
