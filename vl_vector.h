@@ -11,6 +11,28 @@ private:
 
     int vec_size;
     size_t vec_capacity;
+
+    template<class InputIterator1, class InputIterator2>
+    int distance(InputIterator1 first, InputIterator2 last)
+    {
+        InputIterator1 temp = first;
+        int k = 0;
+        for(auto it = temp; it != last; ++it)
+        {
+            k++;
+        }
+        return k;
+    }
+
+    template<class InputIt, class OutputIt>
+    OutputIt copy(InputIt first, InputIt last, OutputIt d_first)
+    {
+        while (first != last)
+        {
+            *d_first++ = *first++;
+        }
+        return d_first;
+    }
 public:
     T static_data[StaticCapacity];
     T* dynamic_data;
@@ -20,6 +42,7 @@ public:
     typedef T value_type;
     typedef T &reference;
     typedef T *pointer;
+    typedef const T* const_pointer;
     typedef int difference_type;
     typedef std::random_access_iterator_tag iterator_category;
     /**
@@ -118,7 +141,7 @@ public:
     {
         if (index < 0 || index >= this->vec_size)
         {
-            throw "Wrong index";
+            throw std::out_of_range("bad index");
         }
 
         if (this->vec_size > (int)StaticCapacity)
@@ -166,8 +189,9 @@ public:
     {
         if (this->vec_size < (int)StaticCapacity)
         {
-            std::move_backward(position, this->static_data + this->vec_size, this->static_data + this->vec_size + 1);
-            std::fill(position, position + 1, v);
+            std::move_backward(position, position + this->distance(position, this->data() + this->vec_size), this->static_data + this->vec_size + 1);
+            int k = this->distance(this->data(), position);
+            std::fill(this->data() + k, this->data() + k + 1, v);
             this->vec_size++;
         }
         else if(this->vec_size == (int)StaticCapacity)
@@ -176,7 +200,7 @@ public:
             this->vec_capacity = ceil((3 * this->vec_size) / 2);
             this->dynamic_data = new T[this->vec_capacity];
             std::move(this->static_data, this->static_data + StaticCapacity, this->dynamic_data);
-            int pos = std::distance(this->static_data, position);
+            int pos = this->distance(this->static_data, position);
             std::move_backward(this->dynamic_data + pos, this->dynamic_data + this->vec_size - 1, this->dynamic_data +
             this->vec_size);
             std::fill(this->dynamic_data + pos, this->dynamic_data + pos + 1, v);
@@ -191,13 +215,16 @@ public:
                 T* temp = this->dynamic_data;
                 this->dynamic_data = new T[this->vec_capacity];
                 std::copy(temp, temp + this->vec_size - 1, this->dynamic_data);
-                std::move_backward(position, this->dynamic_data + this->vec_size - 1, this->dynamic_data + this->vec_size);
-                std::fill(position, position + 1, v);
+                std::move_backward(position, position + this->distance(position,temp + this->vec_size - 1), this->dynamic_data + this->vec_size);
+                int k = this->distance(temp, position);
+                std::fill(this->data() + k, this->data() + k + 1, v);
+                delete[] temp;
             }
             else
             {
-                std::move_backward(position, this->dynamic_data + this->vec_size - 1, this->dynamic_data + this->vec_size);
-                std::fill(position, position + 1, v);
+                std::move_backward(position, position + this->distance(position, this->dynamic_data + this->vec_size - 1), this->dynamic_data + this->vec_size);
+                int k = this->distance(this->data(), position);
+                std::fill(this->data() + k, this->data() + k + 1, v);
             }
         }
 
@@ -217,8 +244,9 @@ public:
 
         if (this->vec_size + k <= (int)StaticCapacity)
         {
-            std::move_backward(position, this->static_data + this->vec_size, this->static_data + this->vec_size + k);
-            std::copy(first, last, position);
+            std::move_backward(position, position + this->distance(position, this->static_data + this->vec_size), this->static_data + this->vec_size + k);
+            int pos = this->distance(this->data(), position);
+            std::copy(first, last, this->data() + pos);
             this->vec_size += k;
         }
         else if (this->vec_size <= (int)StaticCapacity && this->vec_size + k > (int)StaticCapacity)
@@ -226,7 +254,7 @@ public:
             this->vec_capacity = ceil((3 * (this->vec_size + k)) / 2);
             this->dynamic_data = new T[this->vec_capacity];
             std::move(this->static_data, this->static_data + this->vec_size, this->dynamic_data);
-            int pos = std::distance(this->static_data, position);
+            int pos = this->distance(this->static_data, position);
             std::move_backward(this->dynamic_data + pos, this->dynamic_data + this->vec_size, this->dynamic_data +
             this->vec_size + k);
             std::copy(first, last, this->dynamic_data + pos);
@@ -242,14 +270,17 @@ public:
                 T* temp2 = this->dynamic_data;
                 this->dynamic_data = new T[this->vec_capacity];
                 std::copy(temp2, temp2 + this->vec_size, this->dynamic_data);
-                std::move_backward(position, this->dynamic_data + this->vec_size, this->dynamic_data + this->vec_size + k);
-                std::copy(first, last, position);
+                std::move_backward(position, position + this->distance(position,this->dynamic_data + this->vec_size), this->dynamic_data + this->vec_size + k);
+
+                int pos = this->distance(this->data(), position);
+                std::copy(first, last, this->data() + pos);
                 this->vec_size += k;
             }
             else
             {
-                std::move_backward(position, this->dynamic_data + this->vec_size, this->dynamic_data + this->vec_size + k);
-                std::copy(first, last, position);
+                std::move_backward(position, position + this->distance(position, this->dynamic_data + this->vec_size), this->dynamic_data + this->vec_size + k);
+                int pos = this->distance(this->data(), position);
+                std::copy(first, last, this->data() + pos);
                 this->vec_size += k;
             }
         }
@@ -275,7 +306,7 @@ public:
         int pos = 0;
         if (this->vec_size - 1 == (int)StaticCapacity)
         {
-            pos = std::distance(this->dynamic_data, position);
+            pos = this->distance(this->dynamic_data, position);
             std::move(this->dynamic_data, position, this->static_data);
             std::move(position + 1, this->dynamic_data + this->vec_size, this->static_data + pos);
             this->vec_capacity = StaticCapacity;
@@ -285,14 +316,14 @@ public:
 
         else if(this->vec_size <= (int)StaticCapacity)
         {
-            std::move_backward(position + 1, this->static_data + this->vec_size, this->static_data + this->vec_size -
+            std::move_backward(position + 1, position + this->distance(position, this->static_data + this->vec_size), this->static_data + this->vec_size -
             1);
             this->vec_size--;
             return position;
         }
         else
         {
-            std::move_backward(position + 1, this->dynamic_data + this->vec_size, this->dynamic_data + this->vec_size
+            std::move_backward(position + 1, position + this->distance(position, this->dynamic_data + this->vec_size), this->dynamic_data + this->vec_size
             - 1);
             this->vec_size--;
             return position;
@@ -302,10 +333,10 @@ public:
     template <class InputIterator> InputIterator erase(InputIterator first, InputIterator last)
     {
 
-        int k = std::distance(first, last);
+        int k = this->distance(first, last);
         if (this->vec_size <= (int)StaticCapacity)
         {
-            int pos = std::distance(this->static_data, first);
+            int pos = this->distance(this->static_data, first);
             std::move_backward(last, this->static_data + this->vec_size, this->static_data + this->vec_size -
             k);
             this->vec_size -= k;
@@ -313,7 +344,7 @@ public:
         }
         if (this->vec_size - k <= (int)StaticCapacity)
         {
-            int pos = std::distance(this->dynamic_data, first);
+            int pos = this->distance(this->dynamic_data, first);
             std::move(this->dynamic_data, first, this->static_data);
             std::move(last, this->dynamic_data + this->vec_size, this->static_data + pos);
             this->vec_capacity = StaticCapacity;
@@ -323,7 +354,7 @@ public:
 
         else
         {
-            int pos = std::distance(this->dynamic_data, first);
+            int pos = this->distance(this->dynamic_data, first);
             std::move_backward(last , this->dynamic_data + this->vec_size, this->dynamic_data + this->vec_size - k);
             this->vec_size -= k;
             return this->dynamic_data + pos;
@@ -373,6 +404,30 @@ public:
                 return true;
         }
         return false;
+    }
+
+    vl_vector& operator=(const vl_vector& vec)
+    {
+        if (*this != vec)
+        {
+            this->vec_capacity = vec.capacity();
+            this->vec_size = vec.size();
+            if (vec.vec_size > (int)StaticCapacity)
+            {
+                if (this->data() == this->dynamic_data)
+                {
+                    delete[] this->dynamic_data;
+                }
+                this->dynamic_data = new T[vec.capacity()];
+                std::copy(vec.data(), vec.data() + vec.size(), this->dynamic_data);
+            }
+            else
+            {
+                std::copy(vec.data(), vec.data() + vec.size(), this->static_data);
+            }
+        }
+
+        return *this;
     }
 
     const T& operator[](int index) const
@@ -427,7 +482,7 @@ public:
 
         for (int i = 0; i < this->vec_size; i++)
         {
-            if (this->operator[](i) != other[i])
+            if (this->data()[i] != other.data()[i])
                 return false;
         }
 
@@ -446,226 +501,273 @@ public:
 
     iterator begin()
     {
-        if (this->vec_size > (int)StaticCapacity)
-        {
-            return this->static_data;
-        }
-
-        return this->dynamic_data;
+        return this->data();
     }
 
     iterator end()
     {
-        if (this->vec_size > (int)StaticCapacity)
-        {
-            return this->static_data + this->vec_size;
-        }
-
-        return this->dynamic_data + this->vec_size;
+        return this->data() + this->vec_size;
     }
 
     const_iterator begin() const
     {
-        if (this->vec_size > (int)StaticCapacity)
-        {
-            return this->static_data;
-        }
+        return this->data();
 
-        return this->dynamic_data;
     }
 
     const_iterator end() const
     {
-        if (this->vec_size > (int)StaticCapacity)
-        {
-            return this->static_data + this->vec_size;
-        }
-
-        return this->dynamic_data + this->vec_size;
+        return this->data() + this->vec_size;
     }
     const_iterator cbegin() const
     {
-        if (this->vec_size > (int)StaticCapacity)
-        {
-            return this->static_data;
-        }
-
-        return this->dynamic_data;
+        return this->data();
     }
 
     const_iterator cend() const
     {
-        if (this->vec_size > (int)StaticCapacity)
-        {
-            return this->static_data + this->vec_size;
-        }
-
-        return this->dynamic_data + this->vec_size;
+        return this->data() + this->vec_size;
     }
 
 
-    class reverse_iterator
+//    class reverse_iterator
+//    {
+//    private:
+//        vl_vector* vec;
+//        pointer curr;
+//    public:
+//        reverse_iterator(vl_vector* vec)
+//        {
+//            this->vec = vec;
+//
+//            if (vec->size() > (int)StaticCapacity)
+//            {
+//                this->curr = vec->dynamic_data + vec->size() - 1;
+//            }
+//            else
+//            {
+//                this->curr = vec->static_data + vec->size() - 1;
+//
+//            }
+//        }
+//
+//        reference operator*()
+//        {
+//            return *curr;
+//        }
+//
+//        reverse_iterator &operator++()
+//        {
+//            this->curr--;
+//            return *this;
+//        }
+//
+//        reverse_iterator operator++(int)
+//        {
+//            reverse_iterator temp = *this;
+//            this->curr--;
+//            return temp;
+//        }
+//
+//        reverse_iterator &operator--()
+//        {
+//            this->curr++;
+//            return *this;
+//        }
+//
+//        reverse_iterator operator--(int)
+//        {
+//            reverse_iterator temp = *this;
+//            this->curr++;
+//            return temp;
+//        }
+//
+//        pointer operator->()
+//        {
+//            return &(*curr);
+//        }
+//
+//        reverse_iterator& operator=(const reverse_iterator& rhs)
+//        {
+//            *this = rhs;
+//            return *this;
+//        }
+//
+//        reverse_iterator base() const
+//        {
+//            return *this;
+//        }
+//
+//        reverse_iterator& operator[]( difference_type n ) const
+//        {
+//            this->curr = this->curr - n;
+//            return *this;
+//        }
+//
+//        reverse_iterator operator+( difference_type n ) const
+//        {
+//            reverse_iterator temp = *this;
+//            temp.curr = temp.curr - n;
+//            return temp;
+//        }
+//
+//        reverse_iterator& operator+=( difference_type n )
+//        {
+//            this->curr = this->curr - n;
+//            return *this;
+//        }
+//
+//        reverse_iterator operator-( difference_type n ) const
+//        {
+//            reverse_iterator temp = *this;
+//            temp.curr = temp.curr + n;
+//            return temp;
+//        }
+//
+//        reverse_iterator& operator-=( difference_type n )
+//        {
+//            this->curr = this->curr + n;
+//            return *this;
+//        }
+//
+//        bool operator==(const reverse_iterator &rhs)
+//        {
+//            return this->curr == rhs.curr;
+//        }
+//
+//        bool operator!=(const reverse_iterator &rhs)
+//        {
+//            return this->curr != rhs.curr;
+//        }
+//
+//        bool operator<(const reverse_iterator &rhs)
+//        {
+//            return this->curr > rhs.curr;
+//        }
+//
+//        bool operator<=(const reverse_iterator &rhs)
+//        {
+//            return this->curr >= rhs.curr;
+//        }
+//
+//        bool operator>(const reverse_iterator &rhs)
+//        {
+//            return this->curr < rhs.curr;
+//        }
+//
+//        bool operator>=(const reverse_iterator &rhs)
+//        {
+//            return this->curr <= rhs.curr;
+//        }
+//
+//    };
+//
+//    class const_reverse_iterator
+//    {
+//    private:
+//        const vl_vector* vec;
+//        const pointer curr;
+//    public:
+//        const_reverse_iterator(const vl_vector* vec): vec(vec), curr(vec->data() + vec->size() - 1)
+//        {
+//        }
+//
+//        const_reverse_iterator(const vl_vector* vec, const pointer curr): vec(vec), curr(curr)
+//        {
+//
+//        }
+//
+//        reference operator*()
+//        {
+//            return *curr;
+//        }
+//
+//
+//
+//        const_reverse_iterator base() const
+//        {
+//            return *this;
+//        }
+//
+////        const_reverse_iterator operator+( difference_type n ) const
+////        {
+////            reverse_iterator temp = *this;
+////            temp.curr = temp.curr - n;
+////            return temp;
+////        }
+////
+////
+////        reverse_iterator operator-( difference_type n ) const
+////        {
+////            reverse_iterator temp = *this;
+////            temp.curr = temp.curr + n;
+////            return temp;
+////        }
+//
+//
+//
+//        bool operator==(const_reverse_iterator &rhs)
+//        {
+//            return this->curr == rhs.curr;
+//        }
+//
+//        bool operator!=(const_reverse_iterator &rhs)
+//        {
+//            return this->curr != rhs.curr;
+//        }
+//
+//        bool operator<(const_reverse_iterator &rhs)
+//        {
+//            return this->curr > rhs.curr;
+//        }
+//
+//        bool operator<=(const_reverse_iterator &rhs)
+//        {
+//            return this->curr >= rhs.curr;
+//        }
+//
+//        bool operator>(const_reverse_iterator &rhs)
+//        {
+//            return this->curr < rhs.curr;
+//        }
+//
+//        bool operator>=(const_reverse_iterator &rhs)
+//        {
+//            return this->curr <= rhs.curr;
+//        }
+//    };
+
+
+    std::reverse_iterator<pointer> rbegin()
     {
-    private:
-        vl_vector* vec;
-        pointer curr;
-    public:
-
-        reverse_iterator(vl_vector* vec)
-        {
-            this->vec = vec;
-            this->curr = vec[vec->vec_size - 1];
-        }
-
-        reference operator*()
-        {
-            return *curr;
-        }
-
-        reverse_iterator &operator++()
-        {
-            this->curr--;
-            return *this;
-        }
-
-        reverse_iterator operator++(int)
-        {
-            reverse_iterator temp = *this;
-            this->curr--;
-            return temp;
-        }
-
-        reverse_iterator &operator--()
-        {
-            this->curr++;
-            return *this;
-        }
-
-        reverse_iterator operator--(int)
-        {
-            reverse_iterator temp = *this;
-            this->curr++;
-            return temp;
-        }
-
-        pointer operator->()
-        {
-            return &(*curr);
-        }
-
-        reverse_iterator& operator=(const reverse_iterator& rhs)
-        {
-            *this = rhs;
-            return *this;
-        }
-
-        reverse_iterator base() const
-        {
-            return *this;
-        }
-
-        reverse_iterator& operator[]( difference_type n ) const
-        {
-            this->curr = this->curr - n;
-            return *this;
-        }
-
-        reverse_iterator operator+( difference_type n ) const
-        {
-            reverse_iterator temp = *this;
-            temp.curr = temp.curr - n;
-            return temp;
-        }
-
-        reverse_iterator& operator+=( difference_type n )
-        {
-            this->curr = this->curr - n;
-            return *this;
-        }
-
-        reverse_iterator operator-( difference_type n ) const
-        {
-            reverse_iterator temp = *this;
-            temp.curr = temp.curr + n;
-            return temp;
-        }
-
-        reverse_iterator& operator-=( difference_type n )
-        {
-            this->curr = this->curr + n;
-            return *this;
-        }
-
-        bool operator==(const reverse_iterator &rhs)
-        {
-            return this->curr == rhs.curr;
-        }
-
-        bool operator!=(const reverse_iterator &rhs)
-        {
-            return this->curr != rhs.curr;
-        }
-
-        bool operator<(const reverse_iterator &rhs)
-        {
-            return this->curr > rhs.curr;
-        }
-
-        bool operator<=(const reverse_iterator &rhs)
-        {
-            return this->curr >= rhs.curr;
-        }
-
-        bool operator>(const reverse_iterator &rhs)
-        {
-            return this->curr < rhs.curr;
-        }
-
-        bool operator>=(const reverse_iterator &rhs)
-        {
-            return this->curr <= rhs.curr;
-        }
-
-    };
-
-    reverse_iterator rbegin()
-    {
-        return reverse_iterator(this);
+        return std::make_reverse_iterator(this->end());
     }
 
-    reverse_iterator rend()
+    std::reverse_iterator<pointer> rend()
     {
-        reverse_iterator it = reverse_iterator(this);
-        it += this->vec_size;
-        return it;
+       return std::make_reverse_iterator(this->begin());
     }
 
-    const reverse_iterator rbegin() const
+    const std::reverse_iterator<const_pointer> rbegin() const
     {
-        return reverse_iterator(this);
+        return std::make_reverse_iterator(this->end());
     }
 
-    const reverse_iterator rend() const
+    const std::reverse_iterator<const_pointer> rend() const
     {
-        if (this->vec_size > (int)StaticCapacity)
-        {
-            return this->dynamic_data - 1;
-        }
-        return this->static_data - 1;
+        return std::make_reverse_iterator(this->begin());
+
     }
 
-    const reverse_iterator crbegin() const
+    const std::reverse_iterator<const_pointer> crbegin() const
     {
-        return reverse_iterator(this);
+        return std::make_reverse_iterator(this->cend());
+
     }
 
-    const reverse_iterator crend() const
+    const std::reverse_iterator<const_pointer> crend() const
     {
-        if (this->vec_size > (int)StaticCapacity)
-        {
-            return this->dynamic_data - 1;
-        }
-        return this->static_data - 1;
+        return std::make_reverse_iterator(this->cbegin());
     }
 
 
