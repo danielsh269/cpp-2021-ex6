@@ -75,9 +75,9 @@ public:
 
     vl_vector(size_t count, const T &v)
     {
-        this->vec_size = count;
+        this->vec_size = (int)count;
 
-        if (this->vec_size <= StaticCapacity)
+        if (this->vec_size <= (int)StaticCapacity)
         {
             this->vec_capacity = StaticCapacity;
             std::fill(this->static_data, this->static_data + count, v);
@@ -92,7 +92,7 @@ public:
 
     ~vl_vector()
     {
-        if (this->vec_size > StaticCapacity)
+        if (this->vec_size > (int)StaticCapacity)
         {
             delete[] this->dynamic_data;
         }
@@ -121,7 +121,7 @@ public:
             throw "Wrong index";
         }
 
-        if (this->vec_size > StaticCapacity)
+        if (this->vec_size > (int)StaticCapacity)
         {
             return this->dynamic_data[index];
         }
@@ -131,12 +131,12 @@ public:
 
     void push_back(const T& v)
     {
-        if (this->vec_size < StaticCapacity)
+        if (this->vec_size < (int)StaticCapacity)
         {
             std::fill(this->static_data + this->vec_size, this->static_data + this->vec_size + 1, v);
             this->vec_size++;
         }
-        else if(this->vec_size == StaticCapacity)
+        else if(this->vec_size == (int)StaticCapacity)
         {
             this->vec_size++;
             this->vec_capacity = ceil((3 * this->vec_size) / 2);
@@ -147,7 +147,7 @@ public:
         else
         {
             this->vec_size++;
-            if (this->vec_size > this->vec_capacity)
+            if (this->vec_size > (int)this->vec_capacity)
             {
                 this->vec_capacity = ceil((3 * this->vec_size) / 2);
                 T* temp = this->dynamic_data;
@@ -164,13 +164,13 @@ public:
 
     template <class InputIterator> InputIterator insert(InputIterator position, const T& v)
     {
-        if (this->vec_size < StaticCapacity)
+        if (this->vec_size < (int)StaticCapacity)
         {
             std::move_backward(position, this->static_data + this->vec_size, this->static_data + this->vec_size + 1);
             std::fill(position, position + 1, v);
             this->vec_size++;
         }
-        else if(this->vec_size == StaticCapacity)
+        else if(this->vec_size == (int)StaticCapacity)
         {
             this->vec_size++;
             this->vec_capacity = ceil((3 * this->vec_size) / 2);
@@ -185,7 +185,7 @@ public:
         else
         {
             this->vec_size++;
-            if (this->vec_size > this->vec_capacity)
+            if (this->vec_size > (int)this->vec_capacity)
             {
                 this->vec_capacity = ceil((3 * this->vec_size) / 2);
                 T* temp = this->dynamic_data;
@@ -215,13 +215,13 @@ public:
         }
 
 
-        if (this->vec_size + k <= StaticCapacity)
+        if (this->vec_size + k <= (int)StaticCapacity)
         {
             std::move_backward(position, this->static_data + this->vec_size, this->static_data + this->vec_size + k);
             std::copy(first, last, position);
             this->vec_size += k;
         }
-        else if (this->vec_size <= StaticCapacity && this->vec_size + k > StaticCapacity)
+        else if (this->vec_size <= (int)StaticCapacity && this->vec_size + k > (int)StaticCapacity)
         {
             this->vec_capacity = ceil((3 * (this->vec_size + k)) / 2);
             this->dynamic_data = new T[this->vec_capacity];
@@ -236,7 +236,7 @@ public:
         }
         else
         {
-            if (this->vec_size + k > this->vec_capacity)
+            if (this->vec_size + k > (int)this->vec_capacity)
             {
                 this->vec_capacity = ceil((3 * (this->vec_size + k)) / 2);
                 T* temp2 = this->dynamic_data;
@@ -261,7 +261,7 @@ public:
             return;
         }
 
-        if (this->vec_size - 1 == StaticCapacity) {
+        if (this->vec_size - 1 == (int)StaticCapacity) {
             std::move(this->dynamic_data, this->dynamic_data + this->vec_size - 1, this->static_data);
             this->vec_capacity = StaticCapacity;
         }
@@ -273,7 +273,7 @@ public:
     {
 
         int pos = 0;
-        if (this->vec_size - 1 == StaticCapacity)
+        if (this->vec_size - 1 == (int)StaticCapacity)
         {
             pos = std::distance(this->dynamic_data, position);
             std::move(this->dynamic_data, position, this->static_data);
@@ -283,7 +283,7 @@ public:
             return this->static_data + pos;
         }
 
-        else if(this->vec_size <= StaticCapacity)
+        else if(this->vec_size <= (int)StaticCapacity)
         {
             std::move_backward(position + 1, this->static_data + this->vec_size, this->static_data + this->vec_size -
             1);
@@ -303,7 +303,7 @@ public:
     {
 
         int k = std::distance(first, last);
-        if (this->vec_size <= StaticCapacity)
+        if (this->vec_size <= (int)StaticCapacity)
         {
             int pos = std::distance(this->static_data, first);
             std::move_backward(last, this->static_data + this->vec_size, this->static_data + this->vec_size -
@@ -311,7 +311,7 @@ public:
             this->vec_size -= k;
             return this->static_data + pos;
         }
-        if (this->vec_size - k <= StaticCapacity)
+        if (this->vec_size - k <= (int)StaticCapacity)
         {
             int pos = std::distance(this->dynamic_data, first);
             std::move(this->dynamic_data, first, this->static_data);
@@ -332,7 +332,7 @@ public:
 
     void clear()
     {
-        if (this->vec_size <= StaticCapacity)
+        if (this->vec_size <= (int)StaticCapacity)
         {
             this->vec_size = 0;
         }
@@ -346,7 +346,7 @@ public:
 
     T* data() const
     {
-        if (this->vec_size <= StaticCapacity)
+        if (this->vec_size <= (int)StaticCapacity)
         {
             return this->static_data;
         }
@@ -368,7 +368,7 @@ public:
     const T& operator[](int index) const
     {
         T* temp;
-        if (this->vec_size <= StaticCapacity)
+        if (this->vec_size <= (int)StaticCapacity)
         {
             temp = this->static_data;
         }
@@ -384,7 +384,7 @@ public:
     {
 
         T* temp;
-        if (this->vec_size <= StaticCapacity)
+        if (this->vec_size <= (int)StaticCapacity)
         {
             temp = this->static_data;
         }
@@ -436,7 +436,7 @@ public:
 
     iterator begin()
     {
-        if (this->vec_size > StaticCapacity)
+        if (this->vec_size > (int)StaticCapacity)
         {
             return this->static_data;
         }
@@ -446,7 +446,7 @@ public:
 
     iterator end()
     {
-        if (this->vec_size > StaticCapacity)
+        if (this->vec_size > (int)StaticCapacity)
         {
             return this->static_data + this->vec_size;
         }
@@ -456,7 +456,7 @@ public:
 
     const_iterator begin() const
     {
-        if (this->vec_size > StaticCapacity)
+        if (this->vec_size > (int)StaticCapacity)
         {
             return this->static_data;
         }
@@ -466,7 +466,7 @@ public:
 
     const_iterator end() const
     {
-        if (this->vec_size > StaticCapacity)
+        if (this->vec_size > (int)StaticCapacity)
         {
             return this->static_data + this->vec_size;
         }
@@ -475,7 +475,7 @@ public:
     }
     const_iterator cbegin() const
     {
-        if (this->vec_size > StaticCapacity)
+        if (this->vec_size > (int)StaticCapacity)
         {
             return this->static_data;
         }
@@ -485,7 +485,7 @@ public:
 
     const_iterator cend() const
     {
-        if (this->vec_size > StaticCapacity)
+        if (this->vec_size > (int)StaticCapacity)
         {
             return this->static_data + this->vec_size;
         }
