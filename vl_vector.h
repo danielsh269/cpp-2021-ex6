@@ -647,9 +647,11 @@ public:
 
     const reverse_iterator rend() const
     {
-        reverse_iterator it = reverse_iterator(this);
-        it += this->vec_size;
-        return it;
+        if (this->vec_size > (int)StaticCapacity)
+        {
+            return this->dynamic_data - 1;
+        }
+        return this->static_data - 1;
     }
 
     const reverse_iterator crbegin() const
@@ -659,9 +661,11 @@ public:
 
     const reverse_iterator crend() const
     {
-        reverse_iterator it = reverse_iterator(this);
-        it += this->vec_size;
-        return it;
+        if (this->vec_size > (int)StaticCapacity)
+        {
+            return this->dynamic_data - 1;
+        }
+        return this->static_data - 1;
     }
 
 
