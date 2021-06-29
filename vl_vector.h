@@ -24,15 +24,6 @@ private:
         return k;
     }
 
-    template<class InputIt, class OutputIt>
-    OutputIt copy(InputIt first, InputIt last, OutputIt d_first)
-    {
-        while (first != last)
-        {
-            *d_first++ = *first++;
-        }
-        return d_first;
-    }
 public:
     T static_data[StaticCapacity];
     T* dynamic_data;
@@ -408,25 +399,30 @@ public:
 
     vl_vector& operator=(const vl_vector& vec)
     {
-        if (*this != vec)
+        if (this == &vec)
         {
-            this->vec_capacity = vec.capacity();
-            this->vec_size = vec.size();
-            if (vec.vec_size > (int)StaticCapacity)
-            {
-                if (this->data() == this->dynamic_data)
-                {
-                    delete[] this->dynamic_data;
-                }
-                this->dynamic_data = new T[vec.capacity()];
-                std::copy(vec.data(), vec.data() + vec.size(), this->dynamic_data);
-            }
-            else
-            {
-                std::copy(vec.data(), vec.data() + vec.size(), this->static_data);
-            }
+            return *this;
         }
 
+        if (vec.vec_size > (int)StaticCapacity)
+        {
+            if (this->vec_size > (int)StaticCapacity)
+            {
+                delete[] this->dynamic_data;
+            }
+            this->dynamic_data = new T[vec.capacity()];
+            std::copy(vec.data(), vec.data() + vec.size(), this->dynamic_data);
+        }
+        else
+        {
+            if (this->vec_size > (int)StaticCapacity)
+            {
+                delete[] this->dynamic_data;
+            }
+            std::copy(vec.data(), vec.data() + vec.size(), this->static_data);
+        }
+        this->vec_capacity = vec.capacity();
+        this->vec_size = vec.size();
         return *this;
     }
 
@@ -528,215 +524,6 @@ public:
     {
         return this->data() + this->vec_size;
     }
-
-
-//    class reverse_iterator
-//    {
-//    private:
-//        vl_vector* vec;
-//        pointer curr;
-//    public:
-//        reverse_iterator(vl_vector* vec)
-//        {
-//            this->vec = vec;
-//
-//            if (vec->size() > (int)StaticCapacity)
-//            {
-//                this->curr = vec->dynamic_data + vec->size() - 1;
-//            }
-//            else
-//            {
-//                this->curr = vec->static_data + vec->size() - 1;
-//
-//            }
-//        }
-//
-//        reference operator*()
-//        {
-//            return *curr;
-//        }
-//
-//        reverse_iterator &operator++()
-//        {
-//            this->curr--;
-//            return *this;
-//        }
-//
-//        reverse_iterator operator++(int)
-//        {
-//            reverse_iterator temp = *this;
-//            this->curr--;
-//            return temp;
-//        }
-//
-//        reverse_iterator &operator--()
-//        {
-//            this->curr++;
-//            return *this;
-//        }
-//
-//        reverse_iterator operator--(int)
-//        {
-//            reverse_iterator temp = *this;
-//            this->curr++;
-//            return temp;
-//        }
-//
-//        pointer operator->()
-//        {
-//            return &(*curr);
-//        }
-//
-//        reverse_iterator& operator=(const reverse_iterator& rhs)
-//        {
-//            *this = rhs;
-//            return *this;
-//        }
-//
-//        reverse_iterator base() const
-//        {
-//            return *this;
-//        }
-//
-//        reverse_iterator& operator[]( difference_type n ) const
-//        {
-//            this->curr = this->curr - n;
-//            return *this;
-//        }
-//
-//        reverse_iterator operator+( difference_type n ) const
-//        {
-//            reverse_iterator temp = *this;
-//            temp.curr = temp.curr - n;
-//            return temp;
-//        }
-//
-//        reverse_iterator& operator+=( difference_type n )
-//        {
-//            this->curr = this->curr - n;
-//            return *this;
-//        }
-//
-//        reverse_iterator operator-( difference_type n ) const
-//        {
-//            reverse_iterator temp = *this;
-//            temp.curr = temp.curr + n;
-//            return temp;
-//        }
-//
-//        reverse_iterator& operator-=( difference_type n )
-//        {
-//            this->curr = this->curr + n;
-//            return *this;
-//        }
-//
-//        bool operator==(const reverse_iterator &rhs)
-//        {
-//            return this->curr == rhs.curr;
-//        }
-//
-//        bool operator!=(const reverse_iterator &rhs)
-//        {
-//            return this->curr != rhs.curr;
-//        }
-//
-//        bool operator<(const reverse_iterator &rhs)
-//        {
-//            return this->curr > rhs.curr;
-//        }
-//
-//        bool operator<=(const reverse_iterator &rhs)
-//        {
-//            return this->curr >= rhs.curr;
-//        }
-//
-//        bool operator>(const reverse_iterator &rhs)
-//        {
-//            return this->curr < rhs.curr;
-//        }
-//
-//        bool operator>=(const reverse_iterator &rhs)
-//        {
-//            return this->curr <= rhs.curr;
-//        }
-//
-//    };
-//
-//    class const_reverse_iterator
-//    {
-//    private:
-//        const vl_vector* vec;
-//        const pointer curr;
-//    public:
-//        const_reverse_iterator(const vl_vector* vec): vec(vec), curr(vec->data() + vec->size() - 1)
-//        {
-//        }
-//
-//        const_reverse_iterator(const vl_vector* vec, const pointer curr): vec(vec), curr(curr)
-//        {
-//
-//        }
-//
-//        reference operator*()
-//        {
-//            return *curr;
-//        }
-//
-//
-//
-//        const_reverse_iterator base() const
-//        {
-//            return *this;
-//        }
-//
-////        const_reverse_iterator operator+( difference_type n ) const
-////        {
-////            reverse_iterator temp = *this;
-////            temp.curr = temp.curr - n;
-////            return temp;
-////        }
-////
-////
-////        reverse_iterator operator-( difference_type n ) const
-////        {
-////            reverse_iterator temp = *this;
-////            temp.curr = temp.curr + n;
-////            return temp;
-////        }
-//
-//
-//
-//        bool operator==(const_reverse_iterator &rhs)
-//        {
-//            return this->curr == rhs.curr;
-//        }
-//
-//        bool operator!=(const_reverse_iterator &rhs)
-//        {
-//            return this->curr != rhs.curr;
-//        }
-//
-//        bool operator<(const_reverse_iterator &rhs)
-//        {
-//            return this->curr > rhs.curr;
-//        }
-//
-//        bool operator<=(const_reverse_iterator &rhs)
-//        {
-//            return this->curr >= rhs.curr;
-//        }
-//
-//        bool operator>(const_reverse_iterator &rhs)
-//        {
-//            return this->curr < rhs.curr;
-//        }
-//
-//        bool operator>=(const_reverse_iterator &rhs)
-//        {
-//            return this->curr <= rhs.curr;
-//        }
-//    };
-
 
     std::reverse_iterator<pointer> rbegin()
     {
